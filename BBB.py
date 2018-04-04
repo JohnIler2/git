@@ -192,7 +192,7 @@ def RiverScenario():
         #User wants to move
         elif UserSelection in ["N","S","E","W"]:
             OriginalTile=CurrentTile
-            CurrentTile=MyMap.Move(UserSelection)
+            CurrentTile=RiverMap.Move(UserSelection)
             #If they are at a border, the code will return same tile back.  Need to check if we moved.
             if CurrentTile!=OriginalTile:
                 #If they moved tiles, add three minutes to their timer.  Too much?
