@@ -38,6 +38,15 @@ class Map(object):
     def GetLocation(self):
         return self._X,self.Y
 
+    def GetItems(self):
+        listofitems=[]
+        for i in range(0,self._MaxX):
+            for j in range(0,self._MaxY):
+                item=(self._Map[i][j]).GetItem()
+                if listofitems.count(item)==0 and item!="":
+                    listofitems.append(item)
+        return listofitems
+
     def GetStartingTile(self, description):
         return self._StartingTile
 
