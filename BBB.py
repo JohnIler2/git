@@ -3,17 +3,15 @@ import maps as Maps     #Map class code
 import random
 import sys
 import signal
+import time
 
 #ToDo:
 #Leader board (in file?)  #of Turns, # of items found show top turns, show top items found?
 #Welcome()
-#BuildMandatoryTiles for Scenario River, Bay, Gulf, etc ...
-#BuildOptional(filler)Tiles for Scenario River, Bay, Gulf, etc ...
 #Build master list of items
 #Allow user to see items they can find "Bent fishing hook" might lead someone to go back into the bay until it is found?
 #Graphics?/Images?
 #Replace raw_input with a getch function?
-#Write CheckWatch() code
 #Sound?
 
 #Ideas:
@@ -25,6 +23,23 @@ import signal
 def signal_handler(signal, frame):
     print("Ctrl-c pressed ... exiting.")
     sys.exit(0)
+
+def delay_print(s):
+   for c in s:
+       sys.stdout.write(c)
+       sys.stdout.flush()
+       #ToDo: Uncomment line below for prod
+       time.sleep(0.03)
+
+def CheckTimer():
+    StartMinsInDay=TimerStart.tm_hour*60+TimerStart.tm_min
+    MinsInGame=time.localtime(time.time()).tm_hour*60+time.localtime(time.time()).tm_min
+    #print StartMinsInDay
+    #print MinsInGame
+    if MinsInGame-StartMinsInDay>30:
+        return False    #More than 30 mins in game ... game over man!
+    else:
+        return True
 
 def GenerateMap(Len,Width,MandatoryTiles,FluffTiles,AvailableItems):
     MyMap=[]
@@ -97,10 +112,10 @@ def RiverScenario():
     RiverMap=Maps.Map(RiverMap,5,5,"The river bank is too steep to exit here!")
     CurrentTile=RiverMap.GetCurrentTile()
     
-    print("\nYou decide to take a trip down the river.  A storm is on the horizon, but is 'supposed' to clear soon.\n")
-    print("blah,blah ... (storyline) ...\n\n")
+    delay_print("\nYou decide to take a trip down the river.  A storm is on the horizon, but is 'supposed' to clear soon.\n")
+    delay_print("blah,blah ... (storyline) ...\n\n")
 
-    while True:
+    while CheckTimer():
         #ToDo: Check the time versus curfew.  Busted?
         #Each scenario needs to keep track of time and curfew busts!!!
 
@@ -115,11 +130,11 @@ def RiverScenario():
                 print("*****************************")
                 print("\nWith a loud cackle you hear, 'Dats what I call fishing!!!!!!'")
         #Where the real code is ... Tells the user what they see at every tile.
-        print("******\nYou see {}.\n".format(CurrentTile.GetDescription()))
+        delay_print("******\nYou see {}.\n".format(CurrentTile.GetDescription()))
 
         #Ran into a problem ... I needed my event code to print AFTER the "tile code"
         if DisplayEvent:
-            print EventText
+            delay_print(EventText)
             DisplayEvent=False
         #User options
         print("(I)nventory, (L)ook around, (F)ish, (C)heck watch, move (N)orth, (S)outh, (E)ast or (W)est, e(X)it")
@@ -127,38 +142,38 @@ def RiverScenario():
         UserSelection=raw_input("What would you like to do next?: ").upper()
         if UserSelection=="X":
             #ToDo: Check if they are at the dock, if now, print a message saying they take X times the number of spaces to get back?
-            print("You return to the dock and are safely back on shore.\n")
+            delay_print("You return to the dock and are safely back on shore.\n")
             return True     #Important! Routine needs to return True (keep playing) or False (game over)
         elif UserSelection=="I":
             if len(Inventory)==0:
-                print("You have nothing in your inventory.")
+                delay_print("You have nothing in your inventory.")
             else:
-                print("You are currently holding:\n {}".format(Inventory))
+                delay_print("You are currently holding:\n {}".format(Inventory))
         elif UserSelection=="L":
             #Search the tile for an item
             UserSelection=int(raw_input("How many minutes would you like to search the area? "))
             if UserSelection==0:
-                print("You decide not to spend time searching the current location.")
+                delay_print("You decide not to spend time searching the current location.")
             else:
                 #Add the number of minutes searching to the curfew clock
                 TimeSpent+=UserSelection
                 #If there is an item and they searched longer than the "random time" (5-10)
                 if (len(CurrentTile.GetItem()) == 0) or UserSelection<random.randint(5,10):
-                    print("You spend {} minutes searching the area and find nothing.".format(UserSelection))
+                    delay_print("You spend {} minutes searching the area and find nothing.".format(UserSelection))
                 else:
                     #Add item found to inventory
                     Inventory.append(CurrentTile.GetItem())
-                    print("You spend {} minutes searching the area and find {}.".format(UserSelection,CurrentTile.GetItem()))
+                    delay_print("You spend {} minutes searching the area and find {}.".format(UserSelection,CurrentTile.GetItem()))
                     #Clear the item out of the tile
                     CurrentTile.SetItem("")
                     #Special river code.  Only allow user to catch snake if they found the fishing net
                     if CurrentTile.GetEvent()=="Snake":
                         if Inventory.count("fishing net")==1:
-                            print("You capture the snake with your fishing net.")
+                            delay_print("You capture the snake with your fishing net.")
                             CurrentTile.SetDescription("baby snakes in the water looking for their mother")
                         else:
                             #ToDo?: Make it random to see if they get bit?   For now ... BITE EM! =)
-                            print("Without a net, you get bit by the snake and need to go to the hospital!")
+                            delay_print("Without a net, you get bit by the snake and need to go to the hospital!")
                             return False
                     #Net event
                     elif CurrentTile.GetEvent()=="Net":
@@ -168,7 +183,7 @@ def RiverScenario():
             #ToDo?  Make fishing so it isn't a waste of time????
             UserSelection=int(raw_input("How many minutes would you like to stay and fish? "))
             if UserSelection==0:
-                print("You decide not skip fishing for now.")
+                delay_print("You decide not skip fishing for now.")
             else:
                 TimeSpent+=UserSelection
         #User wants to check their watch.
@@ -199,9 +214,8 @@ def Welcome():
     print("**** Welcome Information code goes here.\n\n")
 
 def CheckWatch():
-    global TimeSpent
-    TimeSpent+=1
-    print TimeSpent
+    #ToDo: Redo this code
+    print "Check watch code goes here"
 
 def DisplayLeaderBoard():
     print("**** Leader Board Code")
@@ -252,7 +266,7 @@ GulfFluffTiles=[]
 
 #Variables everything needs access to
 Inventory=[]            #Inventory of items user found
-TimeSpent=0             #Time (or turns?) spent in the game.  Use in the leader board results
+TimerStart=time.localtime(time.time())            #Time (or turns?) spent in the game.  Use in the leader board results
 
 #One-time "intro" to tell the player what is going on ...
 Welcome()
@@ -263,10 +277,10 @@ StillPlaying=True
 #This is the main driver of the game.
 while(StillPlaying):
     #All "scenario" adventures must return a "StillPlaying" result.  i.e. If they drowned in the ocean, the BayCode would return False (no longer playing)
-    if TimeSpent>600:  #10 hours hardcoded
-        print("You lose track of time and bust curfew!")
-        break
-    print("blah, blah (storyline) ... \n")
+    #if TimeSpent>600:  #10 hours hardcoded
+        #delay_print("You lose track of time and bust curfew!")
+        #break
+    delay_print("blah, blah (storyline) ... \n")
     print("(R)iver (B)ay (G)ulf (X)bar (Q)uit")
     UserSelection=raw_input("What would you like to do next? ").upper()
     if UserSelection == "B":
@@ -281,23 +295,19 @@ while(StillPlaying):
         TimeWaster=raw_input("How many drinks would you like to have at Billy Bob's Bangin Bar? ")
         TimeWaster=int(TimeWaster)
         if TimeWaster==0:
-            print("Probably a good idea.\nYou leave the bar.")
+            delay_print("Probably a good idea.\nYou leave the bar.")
         elif TimeWaster==1:
-            print("After a quick drink, you leave the bar for more adventures!")
+            delay_print("After a quick drink, you leave the bar for more adventures!")
         elif TimeWaster<3:
-            print("You spend a good amount of time at the bar, but decide to leave, finding nothing more than a slight headache.")
+            delay_print("You spend a good amount of time at the bar, but decide to leave, finding nothing more than a slight headache.")
         else:
             StillPlaying=False
-            print("You lose track of time and bust curfew!")
+            delay_print("You lose track of time and bust curfew!")
     elif UserSelection == "Q":
         sys.exit(0)
     else:
-        print("That option isn't availabe ... yet!\n")
+        delay_print("That option isn't availabe ... yet!\n")
 
 DisplayLeaderBoard()
 
-'''
-li=[1,2,3,4,5]
-f=list(map(lambda x:x*2,li))
-print f
-'''
+
