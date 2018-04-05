@@ -7,6 +7,7 @@ import signal
 import time
 
 #ToDo:
+#Remove stub code
 #Delete everyone's timespent variables.
 #Check and see if everyone has "while CheckTimer()":
 #MasterListOfItems+=RiverMap.GetItems() to everyones "map/tile area
@@ -31,7 +32,7 @@ def delay_print(s):
        sys.stdout.write(c)
        sys.stdout.flush()
        #ToDo: Uncomment line below for prod
-       #time.sleep(0.03)
+       time.sleep(0.03)
 
 def CheckTimer():
     MinsInDayWhenGameStarted=TimerStart.tm_hour*60+TimerStart.tm_min
@@ -258,10 +259,7 @@ def DisplayLeaderBoard():
                 TimeSpent=str(TotalSecondsPlayed/60)+" minute"+PutAnSOnMinutes+" and "+str(TotalSecondsPlayed%60)+" seconds"
 
     print("It took you {} to find {} out of {} items in the game.".format(TimeSpent,len(Inventory),len(MasterListOfItems)))
-
-
-
-
+    
 #Start Real Program
 #Variables everything needs access to
 MasterListOfItems=[]    #List of all items in the game
@@ -312,6 +310,101 @@ GulfTiles=[]
 GulfFluffTiles=[]
 #(uncomment after you build tiles) - GulfMap=GenerateMap(Len,Width,GulfTiles,GulfFluffTiles,AvailableItems)
 
+
+#*************************** Junk Code ***************************
+#*************************** Junk Code ***************************
+#*************************** Junk Code ***************************
+#Stub code start here ************************************************
+#    ************************** Stub specific tile/map code start **************************
+#One time setup of the scenario map variables
+StubMap=[]         #This is the scenario map which holds all the tiles
+StubTiles=[]       #Important tiles, will be randomized over the map.  (Only placed once)
+StubFluffTiles=[]  #"filler tiles" to populate around the "real scenario tiles".  (Can appear multiple times)
+StubAvailableItems=["stub item 1","stub item 2","stub item 3"]   #Available items which can be placed randomly over the map.
+#These are the important scenario tiles.  Put your items and events here.
+#Usage:Tiles.Tile("Tile description",ignore this field, pass a number,"name of an event you can test for and act on","name of item which can be found on tile"
+StubTiles.append(Tiles.Tile("You see the stub of a table with a ticket stub from StubHub",1,"StubHubEvent","StubHub ticket stub"))
+StubTiles.append(Tiles.Tile("An actractive lady winking at you",1,"LadyEvent",""))
+#These are the filler scenario tiles.  Don't put items here.  You can do it separately when the GenerateMap() code is called  You can put events here.
+StubFluffTiles.append(Tiles.Tile("generic fluff stub 1",0,"",""))
+StubFluffTiles.append(Tiles.Tile("generic fluff stub 2",0,"",""))
+StubFluffTiles.append(Tiles.Tile("generic fluff stub 3",0,"",""))
+#Generate the scenario map!
+StubMap=GenerateMap(4,4,StubTiles,StubFluffTiles,StubAvailableItems)
+#ToDo:Need this in everyone's code!
+#Setup the default map
+StubMap=Maps.Map(StubMap,4,4,"\nWARNING: You can not walk through the StubWall!!!! You are still in the same tile!!!!\n")
+MasterListOfItems+=StubMap.GetItems()
+#    **************************  Stub specific tile/map code end  **************************
+    
+def StubScenario():
+    #ToDo: I don't like how the text is scrolling.  Work on newlines and other BS ...
+    #Get access to the global variables
+    global Inventory
+    global StubMap
+
+    CurrentTile=StubMap.GetCurrentTile()
+
+    delay_print("\nYou decide to take a trip into the stub world!\n")
+    delay_print("blah,blah ... (storyline) ...\n\n")
+
+    #IMPORTANT!!!! At any point if you want to "end their game" "return False"
+    while CheckTimer():
+        #Where the real code is ... Tells the user what they see at every tile.
+        delay_print("\nYou see {}.\n\n".format(CurrentTile.GetDescription()))
+        #User options (You can add/change these.  It is your scenario, have fun with it
+        print("(I)nventory, (L)ook around, (C)heck watch, move (N)orth, (S)outh, (E)ast or (W)est, e(X)it")
+        #get user options and shift to uppercase
+        UserSelection=raw_input("What would you like to do next?: ").upper()
+        if UserSelection=="X":
+            delay_print("You leave the stub world.\n\n")
+            return True     #Important! Routine needs to return True (keep playing) or False (game over)
+        elif UserSelection=="I":
+            if len(Inventory)==0:
+                delay_print("You have nothing in your inventory.\n")
+            else:
+                delay_print("You are currently holding:\n {}\n".format(Inventory))
+        elif UserSelection=="L":
+            #Search the tile for an item
+            UserSelection=int(raw_input("How many minutes would you like to search the area? "))
+            if UserSelection==0:
+                delay_print("You decide not to spend time searching the current location.\n")
+            else:
+                #If there is an item and they searched longer than the "random time" (5-10)
+                if (len(CurrentTile.GetItem()) == 0) or UserSelection<random.randint(5,10):
+                    delay_print("You spend {} minutes searching the area and find nothing.\n".format(UserSelection))
+                else:
+                    #Add item found to inventory
+                    Inventory.append(CurrentTile.GetItem())
+                    delay_print("You spend {} minutes searching the area and find {}.\n".format(UserSelection,CurrentTile.GetItem()))
+                    #Clear the item out of the tile
+                    CurrentTile.SetItem("")
+                    #Maybe you want to change the tiles description?
+                    if CurrentTile.GetEvent()=="StubHub":
+                        CurrentTile.SetDescription("an empty table (which used to have a StubHub ticket)")
+        #User wants to check their watch.
+        elif UserSelection=="C":
+            CheckWatch()
+        #User wants to move
+        elif UserSelection in ["N","S","E","W"]:
+            OriginalTile=CurrentTile
+            CurrentTile=StubMap.Move(UserSelection)
+            #If they are at a border, the code will return same tile back.  Need to check if we moved.
+            if CurrentTile!=OriginalTile:
+                if CurrentTile.GetEvent()=="LadyEvent":
+                    print "lady event"
+                #print MyMap.DisplayMap()
+                #print MyTile.DisplayTile()
+        else:
+            print("'{}' is an invalid selection.".format(UserSelection))
+    return True
+#Stub code stop here ************************************************
+#*************************** Junk Code ***************************
+#*************************** Junk Code ***************************
+#*************************** Junk Code ***************************
+
+
+
 #One-time "intro" to tell the player what is going on ...
 #ToDo:Get code from Jeff
 Welcome()
@@ -326,7 +419,7 @@ while(StillPlaying and CheckTimer()):
     #ToDo:Check watch code return value(s) so leaderboard can call it?
     
     delay_print("blah, blah (storyline) ... \n")
-    print("(B)ay Race (C)asino (G)ulf (R)iver (X)bar (Q)uit")
+    print("(B)ay Race (C)asino (G)ulf (R)iver (X)bar (Q)uit  (S)tub code")
     UserSelection=raw_input("What would you like to do next? ").upper()
     if UserSelection == "B":
         StillPlaying=Bayrace()
@@ -334,6 +427,8 @@ while(StillPlaying and CheckTimer()):
         StillPlaying=GulfScenario()
     elif UserSelection == "R":
         StillPlaying=RiverScenario()
+    elif UserSelection == "S":
+        StillPlaying=StubScenario()      
     elif UserSelection == "C":
         StillPlaying=CasinoScenario()
     elif UserSelection == "X":
@@ -355,5 +450,7 @@ while(StillPlaying and CheckTimer()):
         delay_print("That option isn't availabe ... yet!\n")
 
 DisplayLeaderBoard()
+
+
 
 
