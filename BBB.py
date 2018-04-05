@@ -1,3 +1,4 @@
+#This is almost ready (To be utilized with the walk through document)s
 import tiles as Tiles   #Tiles class code
 import maps as Maps     #Map class code
 import random
@@ -6,18 +7,19 @@ import signal
 import time
 
 #ToDo:
+#Delete everyone's timespent variables.
+#Check and see if everyone has "while CheckTimer()":
+#MasterListOfItems+=RiverMap.GetItems() to everyones "map/tile area
+#Move map setup and inventory population outside everyone's functions
 #Leader board (in file?)  #of Turns, # of items found show top turns, show top items found?
 #Welcome()
-#Build master list of items
 #Allow user to see items they can find "Bent fishing hook" might lead someone to go back into the bay until it is found?
 #Graphics?/Images?
 #Replace raw_input with a getch function?
 #Sound?
+#Make a "Must have" list for the guys???
 
 #Ideas:
-#Keep track of moves or time
-#If we do time, need to "get back to the dorm" by time X?
-#If late?
 #Allow areas to be reentered (test)
 
 def signal_handler(signal, frame):
@@ -29,17 +31,17 @@ def delay_print(s):
        sys.stdout.write(c)
        sys.stdout.flush()
        #ToDo: Uncomment line below for prod
-       time.sleep(0.03)
+       #time.sleep(0.03)
 
 def CheckTimer():
-    StartMinsInDay=TimerStart.tm_hour*60+TimerStart.tm_min
-    MinsInGame=time.localtime(time.time()).tm_hour*60+time.localtime(time.time()).tm_min
+    MinsInDayWhenGameStarted=TimerStart.tm_hour*60+TimerStart.tm_min
+    TotalMinsSinceInGame=time.localtime(time.time()).tm_hour*60+time.localtime(time.time()).tm_min
     #print StartMinsInDay
     #print MinsInGame
-    if MinsInGame-StartMinsInDay>30:
+    if TotalMinsSinceInGame-MinsInDayWhenGameStarted>30:
         return False    #More than 30 mins in game ... game over man!
     else:
-        return True
+        return True     #They still have time to play!
 
 def GenerateMap(Len,Width,MandatoryTiles,FluffTiles,AvailableItems):
     MyMap=[]
@@ -88,35 +90,37 @@ def GenerateMap(Len,Width,MandatoryTiles,FluffTiles,AvailableItems):
 
     return MyMap
     
-def BayScenario():
-    print("**** Bay code goes here.")
-    return False
+def Bayrace():
+    print("**** Ross' code goes here.")
+    return True
 
 def GulfScenario():
-    print("**** Gulf code goes here.")
+    print("**** Jeff's code goes here.")
+    return True
+
+def CasinoScenario():
+    print("**** Ethan's code goes here.")
     return True
 
 def RiverScenario():
     #ToDo: I don't like how the text is scrolling.  Work on newlines and other BS ...
     #Get access to the global variables
-    global TimeSpent
     global Inventory
     global RiverMap
+    #ToDo:Need this in everyone's code!
+    global MasterListOfItems
 
     #Special variables to handle some "river events"
     DynamiteCounter=0
     DisplayEvent=False
     EventText=""
 
-    #Setup the default map
-    RiverMap=Maps.Map(RiverMap,5,5,"The river bank is too steep to exit here!")
     CurrentTile=RiverMap.GetCurrentTile()
-    
+
     delay_print("\nYou decide to take a trip down the river.  A storm is on the horizon, but is 'supposed' to clear soon.\n")
     delay_print("blah,blah ... (storyline) ...\n\n")
 
     while CheckTimer():
-        #ToDo: Check the time versus curfew.  Busted?
         #Each scenario needs to keep track of time and curfew busts!!!
 
         #"Dynamite fishing event! (delayed explosion after the user finds the fisherman
@@ -155,8 +159,6 @@ def RiverScenario():
             if UserSelection==0:
                 delay_print("You decide not to spend time searching the current location.")
             else:
-                #Add the number of minutes searching to the curfew clock
-                TimeSpent+=UserSelection
                 #If there is an item and they searched longer than the "random time" (5-10)
                 if (len(CurrentTile.GetItem()) == 0) or UserSelection<random.randint(5,10):
                     delay_print("You spend {} minutes searching the area and find nothing.".format(UserSelection))
@@ -184,8 +186,6 @@ def RiverScenario():
             UserSelection=int(raw_input("How many minutes would you like to stay and fish? "))
             if UserSelection==0:
                 delay_print("You decide not skip fishing for now.")
-            else:
-                TimeSpent+=UserSelection
         #User wants to check their watch.
         elif UserSelection=="C":
             CheckWatch()
@@ -195,8 +195,6 @@ def RiverScenario():
             CurrentTile=RiverMap.Move(UserSelection)
             #If they are at a border, the code will return same tile back.  Need to check if we moved.
             if CurrentTile!=OriginalTile:
-                #If they moved tiles, add three minutes to their timer.  Too much?
-                TimeSpent+=3
                 #ToDo: Check for special events on new tile
                 if CurrentTile.GetEvent()=="Fisherman":
                     DisplayEvent=True
@@ -209,20 +207,66 @@ def RiverScenario():
         else:
             print("'{}' is an invalid selection.".format(UserSelection))
             
-                      
 def Welcome():
     print("**** Welcome Information code goes here.\n\n")
 
 def CheckWatch():
-    #ToDo: Redo this code
-    print "Check watch code goes here"
+    NumberOfSecondsWhenGameStarted=(TimerStart.tm_hour*60+TimerStart.tm_min)*60+TimerStart.tm_sec
+    TotalSecondsSinceInGame=time.localtime(time.time()).tm_hour*3600+time.localtime(time.time()).tm_min*60+time.localtime(time.time()).tm_sec
+    TotalSecondsPlayed=TotalSecondsSinceInGame-NumberOfSecondsWhenGameStarted
+    if TotalSecondsPlayed<60:
+        print("You have been playing for {} seconds.".format(TotalSecondsPlayed))
+    elif TotalSecondsPlayed==60:
+        print("You have been playing for 1 minute.")
+    else:
+        if(TotalSecondsPlayed>119):
+            PutAnSOnMinutes="s"
+        else:
+            PutAnSOnMinutes=""
+        if(TotalSecondsPlayed%60):
+            if TotalSecondsPlayed%60==1:
+                print("You have been playing for {} minute{} and 1 second.".format(TotalSecondsPlayed/60,PutAnSOnMinutes))
+            else:
+                print("You have been playing for {} minute{} and {} seconds.".format(TotalSecondsPlayed/60,PutAnSOnMinutes,TotalSecondsPlayed%60))
+        else:
+            print("You have been playing for {} minute{}.".format(TotalSecondsPlayed/60,PutAnSOnMinutes))
+    return TotalSecondsPlayed
 
 def DisplayLeaderBoard():
-    print("**** Leader Board Code")
+    global MasterListOfItems
+    global Inventory
+
+    TimeSpent=""
+
+    TotalSecondsPlayed=CheckWatch()
+
+    if TotalSecondsPlayed<60:
+        TimeSpent=str(TotalSecondsPlayed)+" seconds"
+    elif TotalSecondsPlayed==60:
+        TimeSpent="1 minute"
+    else:
+        if(TotalSecondsPlayed>119):
+            PutAnSOnMinutes="s"
+        else:
+            PutAnSOnMinutes=""
+        if(TotalSecondsPlayed%60):
+            TimeSpent=str(TotalSecondsPlayed/60)+" minute"+PutAnSOnMinutes
+        else:
+            if TotalSecondsPlayed%60==1:
+                TimeSpent=str(TotalSecondsPlayed/60)+" minute"+PutAnSOnMinutes+" and 1 second"
+            else:
+                TimeSpent=str(TotalSecondsPlayed/60)+" minute"+PutAnSOnMinutes+" and "+str(TotalSecondsPlayed%60)+" seconds"
+
+    print("It took you {} to find {} out of {} items in the game.".format(TimeSpent,len(Inventory),len(MasterListOfItems)))
+
 
 
 
 #Start Real Program
+#Variables everything needs access to
+MasterListOfItems=[]    #List of all items in the game
+Inventory=[]            #Inventory of items user found
+TimerStart=time.localtime(time.time())
 
 #handler code to grab Ctrl-C
 signal.signal(signal.SIGINT, signal_handler)
@@ -249,6 +293,10 @@ RiverFluffTiles.append(Tiles.Tile("beautiful, blue water",0,"",""))
 RiverFluffTiles.append(Tiles.Tile("slightly, murky water",0,"",""))
 #Generate the scenario map!
 RiverMap=GenerateMap(5,5,RiverTiles,RiverFluffTiles,RiverAvailableItems)
+#ToDo:Need this in everyone's code!
+#Setup the default map
+RiverMap=Maps.Map(RiverMap,5,5,"The river bank is too steep to exit here!")
+MasterListOfItems+=RiverMap.GetItems()
 #    **************************  River specific code end  **************************
 
 #shell code (or copy the above river code to start your scenario)
@@ -264,33 +312,30 @@ GulfTiles=[]
 GulfFluffTiles=[]
 #(uncomment after you build tiles) - GulfMap=GenerateMap(Len,Width,GulfTiles,GulfFluffTiles,AvailableItems)
 
-#Variables everything needs access to
-Inventory=[]            #Inventory of items user found
-TimerStart=time.localtime(time.time())            #Time (or turns?) spent in the game.  Use in the leader board results
-
 #One-time "intro" to tell the player what is going on ...
+#ToDo:Get code from Jeff
 Welcome()
 
 #Flag to watch in the loop to see if they are still playing
 StillPlaying=True
 
 #This is the main driver of the game.
-while(StillPlaying):
+while(StillPlaying and CheckTimer()):
     #All "scenario" adventures must return a "StillPlaying" result.  i.e. If they drowned in the ocean, the BayCode would return False (no longer playing)
-    #if TimeSpent>600:  #10 hours hardcoded
-        #delay_print("You lose track of time and bust curfew!")
-        #break
+    #ToDo:Check if len of inventory==MasterListOfItems, if so, quit.
+    #ToDo:Check watch code return value(s) so leaderboard can call it?
+    
     delay_print("blah, blah (storyline) ... \n")
-    print("(R)iver (B)ay (G)ulf (X)bar (Q)uit")
+    print("(B)ay Race (C)asino (G)ulf (R)iver (X)bar (Q)uit")
     UserSelection=raw_input("What would you like to do next? ").upper()
     if UserSelection == "B":
-        StillPlaying=BayScenario()
-    elif UserSelection == "J":  #bogus testing code ... could have a "backdoor 'god mode'"???
-        John()
+        StillPlaying=Bayrace()
     elif UserSelection == "G":
         StillPlaying=GulfScenario()
     elif UserSelection == "R":
-        StillPlaying=RiverScenario()        
+        StillPlaying=RiverScenario()
+    elif UserSelection == "C":
+        StillPlaying=CasinoScenario()
     elif UserSelection == "X":
         TimeWaster=raw_input("How many drinks would you like to have at Billy Bob's Bangin Bar? ")
         TimeWaster=int(TimeWaster)
@@ -304,7 +349,8 @@ while(StillPlaying):
             StillPlaying=False
             delay_print("You lose track of time and bust curfew!")
     elif UserSelection == "Q":
-        sys.exit(0)
+        StillPlaying=False
+        #sys.exit(0) #Leaderboard entry?  For now, no ...
     else:
         delay_print("That option isn't availabe ... yet!\n")
 
