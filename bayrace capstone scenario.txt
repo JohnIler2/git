@@ -1,0 +1,51 @@
+scenarios:
+1. gets in boat at marina and heads out to local bay to hunt alligators for making alligator jerky. 
+2. Need to find the following items: Rifle, Turbo Prop, Moon Shine, and Lucky Hat along the way. 
+3. while hunting for alligator, encounters an alligator and needs a rifle for a successful hunt. Without rifle no alligator - heads back to dock. 
+4. While out hunting for alligator a local bayou racer named "Swamp Racer" appears and wants to race for "Bayou Classic" bragging rights. In order to win the race you must have the "Turbo Prop", Moon Shine, and Lucky Hat. If you do not have all three items you will lose. If you lose you head back to dock. If you win you still head back to dock or continue alligator hunting. 
+
+
+
+Tiles needed for events are as follows:
+1. starting at dock and heading out to the bay. Need to check if rifle and lucky hat is on board. You look around and find the rifle and lucky hat. Both items will always be there. 
+2. Tile that instantly gives you Turbo Prop. You find it floating near the shoreline. 
+3. Tile that instantly gives you Moon Shine. You find it tied to a trot line
+4. event: Tile in which user encounters alligator and attempts to shoot it. User will always be able to kill the alligator because rifle will always be on-board the boat. 
+5. event: Tile in which Swamp Racer appears and wants to race. You can race at all times, but will not win if you have not previously discovered the tiles revealing the turbo prop and moon shine. 
+
+
+
+
+
+
+
+
+#    ************************** Bay specific code start **************************
+#shell code (or copy the above river code to start your scenario)
+BayMap=[]
+BayTiles=[]
+BayFluffTiles=[]
+BayAvailableItems=["Turbo Prop","Moon Shine","Lucky Hat"]   #Available items which can be placed randomly over the map.
+#These are the important scenario tiles.  Put your items and events here.
+#Usage:Tiles.Tile("Tile description",ignore this field, pass a number,"name of an event you can test for and act on","name of item which can be found on tile"
+
+BayTiles.append(Tiles.Tile("You see Swamp Racer appear",5,"race"," prop, moon shine, and lucky hat increases chance of winning"))
+BayTiles.append(Tiles.Tile("You board your boat at the marina",5,"marina","discover your rifle and lucky hat on-board"))
+BayTiles.append(Tiles.Tile("You see something shimmering in the water",5,"prop","prop"))
+BayTiles.append(Tiles.Tile("You see a floating trot line in the water",5,"moon shine","moon shine"))
+BayTiles.append(Tiles.Tile("You see an alligator near the shore line",5,"alligator","kill alligator and load into boat"))
+
+#These are the filler scenario tiles.  Don't put items here.  You can do it separately when the GenerateMap() code is called  You can put events here.
+BayFluffTiles.append(Tiles.Tile("clear, open water",5,"","having a great day"))
+BayFluffTiles.append(Tiles.Tile("very choppy water and windy conditions",5,"","unsafe conditions for hunting alligators"))
+
+
+#Generate the scenario map!
+#ToDo: Change 3,3 to your grid size
+BayMap=GenerateMap(3,3,BayTiles,BayFluffTiles,BayAvailableItems)
+
+#Setup the default map
+BayMap=Maps.Map(BayMap,3,3,"\nWARNING: You have reached the end of the bay map!!!! You are still in the same tile!!!!\n")
+MasterListOfItems+=BayMap.GetItems()
+
+#    **************************  Bay specific code end  ***********************
