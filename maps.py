@@ -40,8 +40,8 @@ class Map(object):
 
     def GetItems(self):
         listofitems=[]
-        for i in range(0,self._MaxX):
-            for j in range(0,self._MaxY):
+        for i in range(0,self._MaxX+1):
+            for j in range(0,self._MaxY+1):
                 item=(self._Map[i][j]).GetItem()
                 if listofitems.count(item)==0 and item!="":
                     listofitems.append(item)
@@ -67,28 +67,24 @@ class Map(object):
         return self._CurrentTile
         
     def MoveNorth(self):
-        print"North"
         if self._Y==self._MaxY:
             print self._BoundaryMsg
         else:
             self._Y+=1
 
     def MoveSouth(self):
-        print"South"
         if self._Y==0:
             print self._BoundaryMsg
         else:
             self._Y-=1
 
     def MoveEast(self):
-        print"East"
         if self._X==self._MaxX:
             print self._BoundaryMsg
         else:
             self._X+=1
 
     def MoveWest(self):
-        print"West"
         if self._X==0:
             print self._BoundaryMsg
         else:
