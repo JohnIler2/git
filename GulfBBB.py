@@ -148,7 +148,7 @@ I::::::I:I**VFFI*NIFF*FVNVV:FNFFVIFFFFFVN*......*VFFNFF:::*:::::::::::::::::::::
                             return False
                     #Net event
                     elif CurrentTile.GetEvent()=="Harpoon":
-                        #Soon as they get the net, change the tile description (don't want it to say their is a shiny surface without the shiny net there
+                        #Soon as they get the harpoon, change the tile description (don't want it to say their is a shiny surface without the shiny net there
                         CurrentTile.SetDescription("Nothing in the water")
 #--------------------------------------------------------------------------------------------
         elif UserSelection=="F":
